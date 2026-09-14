@@ -12,6 +12,7 @@ export default async function(req:Request):Promise<Response>{
     const base44=createClientFromRequest(req);
     let user:any=null;
     try{user=await base44.auth.me();}catch{}
+    if(!user)return Response.json({error:'Unauthorized'},{status:401});
     const {orderId}=await req.json();
     if(!orderId)return Response.json({error:'orderId is required'},{status:400});
 
@@ -19,7 +20,6 @@ export default async function(req:Request):Promise<Response>{
     if(!order)return Response.json({error:'Order not found'},{status:404});
     const orderOwnerId=order.created_by_id;
     const isTest=order.is_test_order===true;
-    if(!user)return Response.json({error:'Unauthorized'},{status:401});
     if(user.role!=='admin'&&user.id!==orderOwnerId)return Response.json({error:'Order access denied'},{status:403});
     let authority=await getOrderAuthority(base44,orderId);
     if(!authority)return Response.json({error:'Canonical order authority not found'},{status:409});
@@ -95,7 +95,7 @@ export default async function(req:Request):Promise<Response>{
     });
     await base44.asServiceRole.entities.DriveArchiveOutbox.create({
       order_id:orderId,order_number:order.order_number,is_test:isTest,release_snapshot_id:release.id,production_artifact_id:artifact.id,source_file_uri:uploaded.file_uri,
-      source_sha256:rendered.productionSha256,target_path:`Specialty Page Studio/Orders/${order.order_number}/specialty-pages-${order.order_number}-300ppi.pdf`,status:'blocked_connector',attempts:0,last_error:'Google Drive connector not authorized; customer delivery is unaffected.'
+      source_sha256:rendered.productionSha256,target_path:`Specialty Page Studio/Orders/${order.order_number}/specialty-pages-${order.order_number}-300ppi.pdf`,status:'blocked_connector',attempts:0
     });
     authority=await applyOrderAuthorityEvent(base44,{
       eventId:`release-bound:${orderId}:${artifact.id}`,
@@ -115,7 +115,7 @@ export default async function(req:Request):Promise<Response>{
     const outputHash=await shaJson({artifact_id:artifact.id,release_id:release.id,delivery_id:delivery.id,file_sha256:rendered.productionSha256});
     const started=await base44.asServiceRole.entities.OperationReceipt.filter({operation_key:opKey,status:'started'});
     if(started[0])await base44.asServiceRole.entities.OperationReceipt.update(started[0].id,{status:'pass',output_hash:outputHash,completed_at:new Date().toISOString()});
-    return Response.json({status:'delivered',artifact_id:artifact.id,delivery_asset_id:delivery.id,page_count:rendered.pageCount,file_sha256:rendered.productionSha256,render_ppi:300,drive_archive:'blocked_connector',order:deliveredOrder});
+    return Response.json({status:'delivered',artifact_id:artifact.id,delivery_asset_id:delivery.id,page_count:rendered.pageCount,file_sha256:rendered.productionSha256,render_ppi:300,drive_archive_queued:true});
   }catch(error:any){
     console.error('renderPaidProduction failed',error);
     return Response.json({error:error?.message||'Entitled production failed'},{status:error?.status||500});
