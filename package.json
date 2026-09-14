@@ -1,0 +1,39 @@
+{
+  "name": "specialty-page-studio",
+  "version": "1.0.0",
+  "description": "A modular TypeScript application for building, rendering, and managing custom-tailored specialty pages with secure backend validation.",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "deno run --allow-all src/dev.ts",
+    "build": "deno bundle src/index.ts dist/index.js",
+    "lint": "deno lint",
+    "format": "deno fmt",
+    "test": "deno test --allow-all"
+  },
+  "dependencies": {
+    "@supabase/functions-js": "^2.0.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "typescript": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "deno": "^1.35.0"
+  },
+  "author": "keystock99206",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keystock99206/specialty-page-studio.git"
+  },
+  "keywords": [
+    "typescript",
+    "serverless",
+    "functions",
+    "specialty-pages",
+    "base44",
+    "authentication"
+  ]
+}
