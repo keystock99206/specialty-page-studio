@@ -63,7 +63,7 @@ export default async function(req: Request): Promise<Response> {
     const catalogCount=allActive.length;
     const completeLibrary=count===catalogCount&&familyKeys.every((key:string)=>groups[key]===familyCounts[key]);
     const oneFullFamily=!completeLibrary&&familyKeys.length===1&&groups[familyKeys[0]]===familyCounts[familyKeys[0]]&&count>1;
-    const allocate=(total:number)=>{const cents=Math.round(total*100), base=Math.floor(cents/count), remainder=cents-base*count;return ordered.map((m:any,index:number)=>({sp_id:m.sp_id,name:m.name,family_key:m.family_key,price_cents:base+(index<remainder?1:0)}));};
+    const allocate=(total:number)=>{const cents=Math.round(total*100), base=Math.floor(cents/count), remainder=cents-base*count;return ordered.map((m:any,index:number)=>({sp_id:m.sp_id,name:m.name,family_key:m.family_key,price:(base+(index<remainder?1:0))/100}));};
     const familyPackTotal=(key:string,n:number)=>({pockets:129,envelopes:89,flaps:119,popups:109,mechanical:119,windows:89,inserts:109} as Record<string,number>)[key]??(n>=30?129:n>=23?109:89);
     let authoritativeTier:string;
     if(completeLibrary){authoritativeTier='complete_library';} else if(oneFullFamily){authoritativeTier='family_pack';} else {authoritativeTier=count===1?'single':'custom_multi';}
@@ -80,13 +80,13 @@ export default async function(req: Request): Promise<Response> {
     const priorReceipts=await base44.asServiceRole.entities.ProofApprovalReceipt.filter({order_id:orderId,status:'active'});
     for(const r of priorReceipts) await base44.asServiceRole.entities.ProofApprovalReceipt.update(r.id,{status:'superseded'});
     stage='create-receipt';
-    await base44.asServiceRole.entities.ProofApprovalReceipt.create({order_id:orderId,order_number:order.order_number,proof_id:proofId,proof_hash:proofHash,approval_hash:approvalHash,approved_by_user_id:user.id,approved_at:approvedAt,status:'active'});
+    await base44.asServiceRole.entities.ProofApprovalReceipt.create({order_id:orderId,order_number:order.order_number,proof_id:proofId,proof_hash:proofHash,approval_hash:approvalHash,approved_by_user_id:user.id,approved_at:approvedAt,geometry_unchanged:true,status:'active'});
     stage='apply-authority';
     await applyOrderAuthorityEvent(base44,{eventId:`approval:${orderId}:${proofId}:${approvalHash}`,orderId,eventType:'APPROVAL_CAPTURED',runtime:authority,occurredAt:approvedAt,payload:{proof_sha256:proofHash,approval_hash:approvalHash}});
     stage='update-proof';
     await base44.asServiceRole.entities.ThemeProof.update(proofId,{status:'approved'});
     stage='update-order';
-    const updated=await base44.asServiceRole.entities.StationeryOrder.update(orderId,{status:'proof_approved',approved_at:approvedAt,items:lineItems,pricing_tier:authoritativeTier,subtotal,proof_final_approved_hash:approvalHash});
+    const updated=await base44.asServiceRole.entities.StationeryOrder.update(orderId,{status:'proof_approved',approved_at:approvedAt,items:lineItems,pricing_tier:authoritativeTier,subtotal,proof_fee:0,total_price:subtotal});
     return Response.json({order:updated,proof_id:proofId,proof_hash:proofHash,approval_hash:approvalHash,status:'proof_approved'});
   }catch(error:any){
     console.error('approveThemeProofV2 failed',error);
