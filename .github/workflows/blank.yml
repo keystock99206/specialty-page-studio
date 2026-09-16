@@ -46,6 +46,31 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.46.3
+      - name: Source integrity — enumerate missing local imports
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing_file="$(mktemp)"
+          while IFS= read -r source; do
+            while IFS= read -r spec; do
+              [[ "$spec" == ./* || "$spec" == ../* ]] || continue
+              candidate="$(dirname "$source")/$spec"
+              if [[ -f "$candidate" ]]; then
+                continue
+              fi
+              if [[ -f "${candidate}.ts" || -f "${candidate}.tsx" || -f "${candidate}.js" || -f "${candidate}.mjs" || -f "${candidate}/index.ts" || -f "${candidate}/index.tsx" || -f "${candidate}/index.js" ]]; then
+                continue
+              fi
+              printf '%s -> %s\n' "$source" "$spec" >> "$missing_file"
+            done < <(sed -nE "s/^[[:space:]]*(import|export)[^'\"]*from[[:space:]]*['\"]([^'\"]+)['\"].*/\2/p; s/^[[:space:]]*import[[:space:]]*['\"]([^'\"]+)['\"].*/\1/p" "$source")
+          done < <(find base44 -type f \( -name '*.ts' -o -name '*.tsx' \) -print | sort)
+
+          if [[ -s "$missing_file" ]]; then
+            echo 'Missing local source modules:'
+            sort -u "$missing_file"
+            exit 1
+          fi
+          echo 'Local import graph complete.'
       - name: Type and import graph check
         run: deno task check
       - name: Lint
