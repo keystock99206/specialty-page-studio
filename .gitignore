@@ -50,9 +50,6 @@ Thumbs.db
 # CI/CD
 .github/workflows/secrets
 
-# Deno
-deno.lock
-
 # Development
 .env.development
 .vscode-settings.json
