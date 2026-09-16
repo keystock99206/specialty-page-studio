@@ -2,12 +2,7 @@ name: MOS-PAF CI
 
 on:
   push:
-    branches:
-      - main
-      - mos-paf/runtime-lock-ci
   pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
