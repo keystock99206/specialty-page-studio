@@ -1,0 +1,8 @@
+{
+  "lock": true,
+  "tasks": {
+    "check": "deno check base44/functions/approveThemeProofV2/entry.ts base44/functions/getPaidDelivery/entry.ts base44/functions/getPaidDeliveryV2/entry.ts base44/functions/renderPaidProduction/entry.ts base44/functions/renderPaidProductionV2/entry.ts",
+    "lint": "deno lint base44",
+    "test": "deno test --allow-env --allow-read base44"
+  }
+}
