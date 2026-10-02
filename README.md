@@ -1,3 +1,24 @@
+> [!WARNING]
+> **ARCHIVE / SOURCE MIRROR — NOT A DEVELOPMENT PROJECT. DO NOT BUILD ON THIS REPO.**
+>
+> This repository is a **partial, read-only mirror** of five backend function files
+> (`approveThemeProofV2`, `getPaidDelivery`, `getPaidDeliveryV2`, `renderPaidProduction`,
+> `renderPaidProductionV2`) exported from the **live Specialty Page Studio app** on Base44
+> (storefront: https://classy-page-craft-studio.base44.app).
+>
+> - **The authoritative app is the classic Base44 "Specialty Page Studio" app**, not this repo.
+>   All features, fixes, and deploys happen there; builder edits only preview until the owner publishes.
+> - **This repo intentionally does not run.** There is no frontend, no `shared/` modules
+>   (`proofTokenGuard.ts`, `orderAuthority.ts` are imported but not exported here), no secrets,
+>   and no Supabase project. Any workspace that opens this repo will fail to start — that is expected.
+> - Issue #1 tracks funnel/factory work **in the app**; this repo exists only as a public
+>   reference copy of the function sources.
+> - Do not add features, scaffolding, or "fixes" here. Treat every file as archival.
+>
+> *(Banner added 2026-10-02 to prevent accidental development on the mirror.)*
+
+---
+
 # Specialty Page Studio
 
 Specialty Page Studio is a modular TypeScript application designed to build, render, and manage custom-tailored specialty pages and dynamic digital layouts with secure backend validation.
