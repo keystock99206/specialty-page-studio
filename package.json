@@ -7,8 +7,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "deno run --allow-all src/dev.ts",
-    "build": "deno bundle src/index.ts dist/index.js",
+    "dev": "tsx watch src/dev.ts",
+    "build": "tsc --noEmit",
     "lint": "deno lint",
     "format": "deno fmt",
     "test": "deno test --allow-all"
@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "deno": "^1.35.0"
+    "tsx": "^4.19.0"
   },
   "author": "keystock99206",
   "license": "MIT",
